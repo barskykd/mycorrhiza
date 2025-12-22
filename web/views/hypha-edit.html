@@ -1,6 +1,6 @@
-{{define "toolbar"}}
+{{define "toolbar-mycomarkup"}}
 <aside class="edit-toolbar markup-toolbar layout-card">
-    <h2 class="edit-toolbar__title layout-card__title">{{block "markup" .}}Markup{{end}}</h2>
+    <h2 class="edit-toolbar__title layout-card__title">Mycomarkup</h2>
     <section class="edit-toolbar__buttons">
         <button class="btn edit-toolbar__btn edit-toolbar__link">[[{{block "link" .}}Link{{end}}]]</button>
         <button class="btn edit-toolbar__btn edit-toolbar__titlelink">[[{{template "link" .}} | {{block "link title" .}}Title{{end}}]]</button>
@@ -29,6 +29,47 @@
         {{end}}
     </p>
 </aside>
+{{end}}
+
+{{define "toolbar-markdown"}}
+<aside class="edit-toolbar markup-toolbar layout-card">
+    <h2 class="edit-toolbar__title layout-card__title">Markdown</h2>
+    <section class="edit-toolbar__buttons">
+        <button class="btn edit-toolbar__btn edit-toolbar__md-link">[Link](url)</button>
+        <button class="btn edit-toolbar__btn edit-toolbar__md-heading1"># Heading</button>
+        <button class="btn edit-toolbar__btn edit-toolbar__md-heading2">## Heading</button>
+        <button class="btn edit-toolbar__btn edit-toolbar__md-bold"><b>**Bold**</b></button>
+        <button class="btn edit-toolbar__btn edit-toolbar__md-italic"><i>*Italic*</i></button>
+        <button class="btn edit-toolbar__btn edit-toolbar__md-code"><code>`Code`</code></button>
+        <button class="btn edit-toolbar__btn edit-toolbar__md-codeblock">```Code block```</button>
+        <button class="btn edit-toolbar__btn edit-toolbar__md-ul">- Bullet</button>
+        <button class="btn edit-toolbar__btn edit-toolbar__md-ol">1. Number</button>
+        <button class="btn edit-toolbar__btn edit-toolbar__md-hr">---</button>
+        <button class="btn edit-toolbar__btn edit-toolbar__md-blockquote">> Quote</button>
+    </section>
+    <p class="edit-toolbar__help">
+        <a href="/help/en/markdown" target="_blank" class="shy-link">Learn more</a> about Markdown
+    </p>
+</aside>
+{{end}}
+
+{{define "toolbar"}}
+    {{if .IsNew}}
+        {{/* For new hyphae, show both toolbars and let JavaScript toggle them */}}
+        <div id="toolbar-mycomarkup-container" class="toolbar-container">
+            {{template "toolbar-mycomarkup" .}}
+        </div>
+        <div id="toolbar-markdown-container" class="toolbar-container" style="display: none;">
+            {{template "toolbar-markdown" .}}
+        </div>
+    {{else}}
+        {{/* For existing hyphae, show only the appropriate toolbar */}}
+        {{if .IsMarkdown}}
+            {{template "toolbar-markdown" .}}
+        {{else}}
+            {{template "toolbar-mycomarkup" .}}
+        {{end}}
+    {{end}}
 <aside class="edit-toolbar action-toolbar layout-card">
     <h2 class="edit-toolbar__title layout-card__title">{{block "actions" .}}Actions{{end}}</h2>
     <section class="edit-toolbar__buttons">
@@ -67,6 +108,21 @@
                 {{end}}
             {{end}}
         </h1>
+        {{if .IsNew}}
+        <fieldset class="edit-form__format-selector">
+            <legend>{{block "choose format" .}}Choose markup format{{end}}</legend>
+            <label>
+                <input type="radio" name="format" value="mycomarkup" required>
+                {{block "mycomarkup format" .}}Mycomarkup{{end}}
+                <a href="/help/en/mycomarkup" target="_blank" class="shy-link">(?)</a>
+            </label>
+            <label>
+                <input type="radio" name="format" value="markdown" required>
+                {{block "markdown format" .}}Markdown{{end}}
+                <a href="/help/en/markdown" target="_blank" class="shy-link">(?)</a>
+            </label>
+        </fieldset>
+        {{end}}
         <textarea name="text" class="edit-form__textarea" autofocus>{{.Content}}</textarea>
         <p class="edit-form__message-zone">
             <input

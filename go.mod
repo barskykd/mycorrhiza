@@ -1,6 +1,8 @@
 module github.com/bouncepaw/mycorrhiza
 
-go 1.21
+go 1.22
+
+toolchain go1.24.11
 
 require (
 	git.sr.ht/~bouncepaw/mycomarkup/v5 v5.6.0
@@ -14,6 +16,7 @@ require (
 
 require (
 	github.com/stretchr/testify v1.7.0 // indirect
+	github.com/yuin/goldmark v1.7.13 // indirect
 	golang.org/x/sys v0.28.0 // indirect
 )
 

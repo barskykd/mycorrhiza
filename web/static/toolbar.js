@@ -150,3 +150,46 @@ for (const key of Object.keys(buttonsHandlers)) {
         button.addEventListener('click', buttonsHandlers[key])
     }
 }
+
+// Markdown toolbar handlers
+const markdownHandlers = {
+    'md-link': selectionWrapper(1, '[', '](url)'),
+    'md-heading1': textInserter('\n# '),
+    'md-heading2': textInserter('\n## '),
+    'md-bold': selectionWrapper(2, '**'),
+    'md-italic': selectionWrapper(1, '*'),
+    'md-code': selectionWrapper(1, '`'),
+    'md-codeblock': textInserter('\n```\n\n```\n', 5),
+    'md-ul': textInserter('\n- '),
+    'md-ol': textInserter('\n1. '),
+    'md-hr': textInserter('\n---\n'),
+    'md-blockquote': textInserter('\n> '),
+}
+
+for (const key of Object.keys(markdownHandlers)) {
+    const button = document.getElementsByClassName(`edit-toolbar__${key}`)[0]
+    if (button) {
+        button.addEventListener('click', markdownHandlers[key])
+    }
+}
+
+// Dynamic toolbar switching for new hyphae
+const formatRadios = document.querySelectorAll('input[name="format"]')
+if (formatRadios.length > 0) {
+    formatRadios.forEach(radio => {
+        radio.addEventListener('change', (e) => {
+            const mycoContainer = document.getElementById('toolbar-mycomarkup-container')
+            const mdContainer = document.getElementById('toolbar-markdown-container')
+
+            if (mycoContainer && mdContainer) {
+                if (e.target.value === 'markdown') {
+                    mycoContainer.style.display = 'none'
+                    mdContainer.style.display = 'block'
+                } else {
+                    mycoContainer.style.display = 'block'
+                    mdContainer.style.display = 'none'
+                }
+            }
+        })
+    })
+}

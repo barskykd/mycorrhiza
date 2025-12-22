@@ -29,7 +29,7 @@ func DataFromFilename(fullPath string) (name string, isText bool, skip bool) {
 	ext := filepath.Ext(shortPath)
 	name = util.CanonicalName(strings.TrimSuffix(shortPath, ext))
 	switch ext {
-	case ".myco":
+	case ".myco", ".md":
 		isText = true
 	case "", shortPath:
 		skip = true
@@ -40,6 +40,8 @@ func DataFromFilename(fullPath string) (name string, isText bool, skip bool) {
 
 var mapMime2Ext = map[string]string{
 	"application/octet-stream": "bin",
+
+	"text/markdown": "md",
 
 	"image/jpeg":    "jpg",
 	"image/gif":     "gif",
@@ -66,6 +68,8 @@ var mapMime2Ext = map[string]string{
 
 var mapExt2Mime = map[string]string{
 	".bin": "application/octet-stream",
+
+	".md": "text/markdown",
 
 	".jpg":  "image/jpeg",
 	".jpeg": "image/jpeg",

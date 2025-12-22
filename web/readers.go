@@ -20,6 +20,7 @@ import (
 	"github.com/bouncepaw/mycorrhiza/internal/files"
 	"github.com/bouncepaw/mycorrhiza/internal/hyphae"
 	"github.com/bouncepaw/mycorrhiza/internal/mimetype"
+	"github.com/bouncepaw/mycorrhiza/internal/renderer"
 	"github.com/bouncepaw/mycorrhiza/internal/tree"
 	"github.com/bouncepaw/mycorrhiza/internal/user"
 	"github.com/bouncepaw/mycorrhiza/l18n"
@@ -256,11 +257,19 @@ func handlerHypha(w http.ResponseWriter, rq *http.Request) {
 	case hyphae.ExistingHypha:
 		fileContentsT, err := os.ReadFile(h.TextFilePath())
 		if err == nil {
-			ctx, _ := mycocontext.ContextFromStringInput(string(fileContentsT), mycoopts.MarkupOptions(hyphaName))
-			getOpenGraph, descVisitor, imgVisitor := tools.OpenGraphVisitors(ctx)
-			ast := mycomarkup.BlockTree(ctx, descVisitor, imgVisitor)
-			openGraph = template.HTML(getOpenGraph())
-			contents = template.HTML(mycomarkup.BlocksToHTML(ctx, ast))
+			// Detect format and render accordingly
+			format := hyphae.DetectTextFormat(h.TextFilePath())
+			if format == hyphae.FormatMarkdown {
+				// For Markdown, use simple rendering (OpenGraph can be improved later)
+				contents, _ = renderer.RenderHyphaContent(h, string(fileContentsT), hyphaName)
+			} else {
+				// For Mycomarkup, keep existing OpenGraph handling
+				ctx, _ := mycocontext.ContextFromStringInput(string(fileContentsT), mycoopts.MarkupOptions(hyphaName))
+				getOpenGraph, descVisitor, imgVisitor := tools.OpenGraphVisitors(ctx)
+				ast := mycomarkup.BlockTree(ctx, descVisitor, imgVisitor)
+				openGraph = template.HTML(getOpenGraph())
+				contents = template.HTML(mycomarkup.BlocksToHTML(ctx, ast))
+			}
 		}
 		switch h := h.(type) {
 		case *hyphae.MediaHypha:

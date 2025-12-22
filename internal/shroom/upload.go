@@ -44,7 +44,7 @@ func writeTextToDisk(h hyphae.ExistingHypha, data []byte, hop *history.Op) error
 }
 
 // UploadText edits the hypha's text part and makes a history record about that.
-func UploadText(h hyphae.Hypha, data []byte, userMessage string, u *user.User) error {
+func UploadText(h hyphae.Hypha, data []byte, userMessage string, u *user.User, format hyphae.TextFormat) error {
 	hop := history.
 		Operation(history.TypeEditText).
 		WithMsg(historyMessageForTextUpload(h, userMessage)).
@@ -81,7 +81,8 @@ func UploadText(h hyphae.Hypha, data []byte, userMessage string, u *user.User) e
 	switch h := h.(type) {
 	case *hyphae.EmptyHypha:
 		parts := []string{files.HyphaeDir()}
-		parts = append(parts, strings.Split(h.CanonicalName()+".myco", "\\")...)
+		ext := hyphae.FormatExtension(format)
+		parts = append(parts, strings.Split(h.CanonicalName()+ext, "\\")...)
 		H := hyphae.ExtendEmptyToTextual(h, filepath.Join(parts...))
 
 		err := writeTextToDisk(H, data, hop)

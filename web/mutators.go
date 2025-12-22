@@ -1,21 +1,18 @@
 package web
 
 import (
-	"html/template"
 	"log/slog"
 	"net/http"
 
 	"github.com/bouncepaw/mycorrhiza/hypview"
 	"github.com/bouncepaw/mycorrhiza/internal/hyphae"
+	"github.com/bouncepaw/mycorrhiza/internal/renderer"
 	"github.com/bouncepaw/mycorrhiza/internal/shroom"
 	"github.com/bouncepaw/mycorrhiza/internal/user"
 	"github.com/bouncepaw/mycorrhiza/l18n"
-	"github.com/bouncepaw/mycorrhiza/mycoopts"
 	"github.com/bouncepaw/mycorrhiza/util"
 	"github.com/bouncepaw/mycorrhiza/web/viewutil"
 
-	"git.sr.ht/~bouncepaw/mycomarkup/v5"
-	"git.sr.ht/~bouncepaw/mycomarkup/v5/mycocontext"
 	"github.com/gorilla/mux"
 )
 
@@ -161,6 +158,7 @@ func handlerEdit(w http.ResponseWriter, rq *http.Request) {
 		return
 	}
 
+	var isMarkdown bool
 	switch h.(type) {
 	case *hyphae.EmptyHypha:
 		isNew = true
@@ -171,15 +169,21 @@ func handlerEdit(w http.ResponseWriter, rq *http.Request) {
 			viewutil.HttpErr(meta, http.StatusInternalServerError, hyphaName, lc.Get("ui.error_text_fetch"))
 			return
 		}
+		// Detect format for existing hyphae
+		if existingH, ok := h.(hyphae.ExistingHypha); ok {
+			format := hyphae.DetectTextFormat(existingH.TextFilePath())
+			isMarkdown = (format == hyphae.FormatMarkdown)
+		}
 	}
 	_ = pageHyphaEdit.RenderTo(
 		viewutil.MetaFrom(w, rq),
 		map[string]any{
-			"HyphaName": hyphaName,
-			"Content":   content,
-			"IsNew":     isNew,
-			"Message":   "",
-			"Preview":   "",
+			"HyphaName":  hyphaName,
+			"Content":    content,
+			"IsNew":      isNew,
+			"IsMarkdown": isMarkdown,
+			"Message":    "",
+			"Preview":    "",
 		})
 }
 
@@ -199,23 +203,45 @@ func handlerUploadText(w http.ResponseWriter, rq *http.Request) {
 		message  = rq.PostFormValue("message")
 	)
 
+	// Determine format
+	var format hyphae.TextFormat = hyphae.FormatMycomarkup
+	if isNew {
+		// For new hyphae, get format from form
+		formatStr := rq.PostFormValue("format")
+		switch formatStr {
+		case "markdown":
+			format = hyphae.FormatMarkdown
+		case "mycomarkup":
+			format = hyphae.FormatMycomarkup
+		default:
+			// Default to mycomarkup if not specified
+			format = hyphae.FormatMycomarkup
+		}
+	} else {
+		// For existing hyphae, detect from current file
+		if existingH, ok := h.(hyphae.ExistingHypha); ok {
+			format = hyphae.DetectTextFormat(existingH.TextFilePath())
+		}
+	}
+
 	if action == "preview" {
-		ctx, _ := mycocontext.ContextFromStringInput(textData, mycoopts.MarkupOptions(hyphaName))
-		preview := template.HTML(mycomarkup.BlocksToHTML(ctx, mycomarkup.BlockTree(ctx)))
+		preview, _ := renderer.RenderForPreview(textData, format, hyphaName)
+		isMarkdown := (format == hyphae.FormatMarkdown)
 
 		_ = pageHyphaEdit.RenderTo(
 			viewutil.MetaFrom(w, rq),
 			map[string]any{
-				"HyphaName": hyphaName,
-				"Content":   textData,
-				"IsNew":     isNew,
-				"Message":   message,
-				"Preview":   preview,
+				"HyphaName":  hyphaName,
+				"Content":    textData,
+				"IsNew":      isNew,
+				"IsMarkdown": isMarkdown,
+				"Message":    message,
+				"Preview":    preview,
 			})
 		return
 	}
 
-	if err := shroom.UploadText(h, []byte(textData), message, u); err != nil {
+	if err := shroom.UploadText(h, []byte(textData), message, u, format); err != nil {
 		viewutil.HttpErr(meta, http.StatusForbidden, hyphaName, err.Error())
 		return
 	}

@@ -1,0 +1,100 @@
+= Markdown Support
+
+Mycorrhiza Wiki now supports **Markdown** as an alternative to Mycomarkup. Markdown is a popular lightweight markup language.
+
+== Choosing a Format
+
+When creating a new hypha, you'll be asked to choose between **Mycomarkup** and **Markdown**. Once a hypha is created, its format cannot be changed (though you can manually convert the content).
+
+== Supported Markdown Syntax
+
+Mycorrhiza uses **GitHub Flavored Markdown (GFM)**, which includes:
+
+=== Text Formatting
+* `*italic*` or `_italic_` → *italic*
+* `**bold**` → **bold**
+* `` `code` `` → monospace code
+* `~~strikethrough~~` → ~~strikethrough~~
+
+=== Headings
+```
+# Heading 1
+## Heading 2
+### Heading 3
+```
+
+=== Links and Images
+* `[link text](url)` → clickable link
+* `![alt text](image.jpg)` → embedded image
+
+=== Lists
+**Bulleted lists:**
+```
+- Item 1
+- Item 2
+  - Nested item
+```
+
+**Numbered lists:**
+```
+1. First item
+2. Second item
+3. Third item
+```
+
+=== Code Blocks
+Triple backticks for code blocks:
+```
+```
+code here
+```
+```
+
+=== Tables
+```
+| Column 1 | Column 2 |
+|----------|----------|
+| Cell 1   | Cell 2   |
+```
+
+=== Blockquotes
+```
+> This is a quote
+> Continued quote
+```
+
+=== Horizontal Rules
+```
+---
+```
+
+=== Task Lists
+```
+- [x] Completed task
+- [ ] Incomplete task
+```
+
+== Differences from Mycomarkup
+
+Markdown **does not support** some Mycomarkup features:
+* **Transclusions** (`<= hypha`) - Mycomarkup only
+* **Rocket links** (`=> url`) - Mycomarkup only
+* **Highlighting** (`++text++`) - Mycomarkup only
+* **Underline** (`__text__`) - Mycomarkup only
+* **Superscript** (`^^text^^`) and **Subscript** (`,,text,,`) - Mycomarkup only
+* **Image blocks** (`img {}`) and **table blocks** (`table {}`) - use Markdown syntax instead
+
+== When to Use Markdown
+
+Choose **Markdown** if:
+* You're already familiar with Markdown from GitHub, GitLab, Reddit, etc.
+* You want compatibility with other Markdown tools
+* You don't need Mycomarkup-specific features
+
+Choose **Mycomarkup** if:
+* You want to use transclusions
+* You need the extended formatting options
+* You're already using Mycomarkup in your wiki
+
+=> /help/en/hypha | Learn about hyphae
+=> /help/en/mycomarkup | Learn about Mycomarkup
