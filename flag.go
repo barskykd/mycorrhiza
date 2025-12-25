@@ -34,10 +34,12 @@ func printHelp() {
 // parseCliArgs parses CLI options and sets several important global variables. Call it early.
 func parseCliArgs() error {
 	var createAdminName string
+	var convertFormat string
 	var versionFlag bool
 
 	flag.StringVar(&cfg.ListenAddr, "listen-addr", "", "Address to listen on. For example, 127.0.0.1:1737 or /run/mycorrhiza.sock.")
 	flag.StringVar(&createAdminName, "create-admin", "", "Create a new admin. The password will be prompted in the terminal.")
+	flag.StringVar(&convertFormat, "convert-format", "", "Convert all hyphae to the specified format (markdown or mycomarkup) and exit.")
 	flag.BoolVar(&versionFlag, "version", false, "Print version information and exit.")
 	flag.Usage = printHelp
 	flag.Parse()
@@ -68,6 +70,14 @@ func parseCliArgs() error {
 		}
 		os.Exit(0)
 	}
+
+	if convertFormat != "" {
+		if err := convertFormatCommand(convertFormat); err != nil {
+			os.Exit(1)
+		}
+		os.Exit(0)
+	}
+
 	return nil
 }
 
